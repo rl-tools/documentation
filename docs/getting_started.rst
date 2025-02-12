@@ -160,7 +160,7 @@ Step 4: Configure and Build the Targets
 .. code-block:: bash
 
    mkdir build && cd build
-   cmake /rl_tools -DCMAKE_BUILD_TYPE=Release -DRL_TOOLS_ENABLE_TARGETS=ON -DRL_TOOLS_BACKEND_ENABLE_OPENBLAS=ON
+   cmake .. -DCMAKE_BUILD_TYPE=Release -DRL_TOOLS_ENABLE_TARGETS=ON -DRL_TOOLS_BACKEND_ENABLE_OPENBLAS=ON
    cmake --build .
 
 
