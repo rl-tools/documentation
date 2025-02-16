@@ -164,7 +164,7 @@ Step 4: Configure and Build the Targets
    cmake --build .
 
 
-- ``cmake ..``: Using CMake to configure the examples contained in the |RLT| project. The main suit of (tuned) environment configurations we are using is the |RLT| Zoo (see `https://zoo.rl.tools <https://zoo.rl.tools>`_ for trained agents and learning curves). If you are using docker, replace `..` with `/rl_tools` since the mounted source tree should be read-only.
+- ``cmake ..``: Using CMake to configure the examples contained in the |RLT| project. The main suit of (tuned) environment configurations we are using is the |RLT| Zoo (see `https://zoo.rl.tools <https://zoo.rl.tools>`_ for trained agents and learning curves). If you are using docker, replace ``..`` with ``/rl_tools`` since the mounted source tree should be read-only.
 
 - ``-DCMAKE_BUILD_TYPE=Release``: Sets the build type to ``Release`` to optimize the build for performance (expect a large difference compared to without it).
 - ``-DRL_TOOLS_ENABLE_TARGETS=ON``: Enables the building of the example targets. These are turned off by default such that they don't clutter projects that just include |RLT| as a library and do not want to build the examples.
