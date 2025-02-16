@@ -180,7 +180,7 @@ Execute e.g. the |RLT| Zoo example using SAC to train the Learning to Fly (l2f) 
 
 .. code-block:: bash
 
-   ./src/rl/zoo/rl_zoo_sac_l2f
+   ./src/rl/zoo/rl_zoo_l2f_sac
 
 You can use ``cmake --build . --target help`` to list the available targets.
 
