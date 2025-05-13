@@ -260,7 +260,7 @@ With this we observe an ~80x speedup. The added options are:
 To further speed up the computations we can use a matrix multiplication backend which we find to give another ~7-10x speedup:
 
 Docker & Ubuntu & WSL
-~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
