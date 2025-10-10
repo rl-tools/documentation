@@ -49,7 +49,7 @@ Python Interface
     seed = 0xf00d
     def env_factory():
         env = gym.make("Pendulum-v1")
-        env = RescaleActionV0(env, -1, 1)
+        env = RescaleAction(env, -1, 1)
         env.reset(seed=seed)
         return env
 
@@ -90,13 +90,9 @@ Step 1: Clone the Repository
 
     git clone https://github.com/rl-tools/rl-tools.git
 
-**Note**:
-    We don't encourage using the ``--recursive`` flag because we are maintaining |RLT| as a monorepo and some of the submodules contain large files (e.g. data for unit tests or redistributable binaries for releases). |RLT| is designed as a header-only and dependency-free library but for some convenience features like Tensorboard logging, or gzipped checkpointing, additional dependencies are required. We prefer to vendor them as versioned submodules in ``./external`` and they can be instantiated selectively using ``git submodule update --init --recursive -- external/<submodule>``.
-
-
 .. _run-docker-container:
 
-**Step 2: Run Container (Docker only)**
+**Step 2: Run Container (Optional)**
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Run a Docker container from the cloned directory:
@@ -122,7 +118,7 @@ Docker & Ubuntu & WSL
 
     apt update
     export DEBIAN_FRONTEND=noninteractive
-    apt install -y build-essential cmake libopenblas-dev python3
+    apt install -y build-essential cmake libopenblas-dev git python3
 
 - ``DEBIAN_FRONTEND=noninteractive``: Suppresses interactive prompts during package installation (for convenience)
 
@@ -134,7 +130,9 @@ Docker & Ubuntu & WSL
 
     - ``libopenblas-dev``: **Optional**. Lightweight BLAS library that provides fast matrix multiplication implementations. Required for the ``-DRL_TOOLS_BACKEND_ENABLE_OPENBLAS=ON`` option. About 10x faster than with the generic implementations that are used by default (when the option is absent). By using a more tailored BLAS library like Intel MKL you might be able to get another ~2x speed improvement
 
-    - ``python3``: **Optional**. Python is used in ``serve.sh`` to host a simple static HTTP server that visualizes the environments during and after training.
+    - ``git``: **Optional**. If git is available, CMake's ``FetchContent`` module is used to automatically fetch other optional dependencies for, e.g., JSON, HDF5, Tensorboard logging, command-line argument parsing etc.
+
+    - ``python3``: **Optional**. Python is used in ``tools/serve.sh`` to host a simple static HTTP server that visualizes the environments during and after training.
 
 
 .. _install-dependencies-macos:
@@ -154,21 +152,14 @@ Install the Xcode command line tools:
 Step 4: Configure and Build the Targets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Note**:
-    For macOS, replace ``-DRL_TOOLS_BACKEND_ENABLE_OPENBLAS=ON`` with ``-DRL_TOOLS_BACKEND_ENABLE_ACCELERATE=ON``
-
 .. code-block:: bash
 
    mkdir build && cd build
-   cmake .. -DCMAKE_BUILD_TYPE=Release -DRL_TOOLS_ENABLE_TARGETS=ON -DRL_TOOLS_BACKEND_ENABLE_OPENBLAS=ON
+   cmake ..
    cmake --build .
 
 
 - ``cmake ..``: Using CMake to configure the examples contained in the |RLT| project. The main suit of (tuned) environment configurations we are using is the |RLT| Zoo (see `https://zoo.rl.tools <https://zoo.rl.tools>`_ for trained agents and learning curves). If you are using docker, replace ``..`` with ``/rl_tools`` since the mounted source tree should be read-only.
-
-- ``-DCMAKE_BUILD_TYPE=Release``: Sets the build type to ``Release`` to optimize the build for performance (expect a large difference compared to without it).
-- ``-DRL_TOOLS_ENABLE_TARGETS=ON``: Enables the building of the example targets. These are turned off by default such that they don't clutter projects that just include |RLT| as a library and do not want to build the examples.
-- ``-DRL_TOOLS_BACKEND_ENABLE_OPENBLAS=ON``: Enables the OpenBLAS backend, allowing RL_Tools to utilize OpenBLAS for matrix multiplications (~10x faster than using the generic implementations that are automatically used in the absence of this flag).
 - ``cmake --build .``: Builds the targets. You can use an additional e.g. ``-j4`` to speed up the build using 4 parallel threads.
 
 .. _run-experiment:
@@ -180,9 +171,10 @@ Execute e.g. the |RLT| Zoo example using SAC to train the Learning to Fly (l2f) 
 
 .. code-block:: bash
 
-   ./src/rl/zoo/rl_zoo_l2f_sac
+   cd ..
+   ./build/src/rl/zoo/rl_zoo_l2f_sac
 
-You can use ``cmake --build . --target help`` to list the available targets.
+You can use ``cmake --build . --target help`` to list the available targets. In Docker the source directory is readonly, hence just run ``./src/rl/zoo/rl_zoo_l2f_sac``. The working directory matters because checkpoints and other logs are written to an ``experiments`` folder in the current working directory.
 
 .. _visualize:
 
@@ -201,10 +193,10 @@ To expose the experiment data through the forwarded port of the docker container
 
 .. code-block:: bash
 
-   cp -r /rl_tools/static .
-   /rl_tools/serve.sh
+   cp -r /rl_tools/static /rl_tools/tools .
+   ./tools/serve.sh
 
-After copying the UI files we run ``serve.sh`` which periodically builds an index file containing a list of all experiment files such that the web UI can find them. It also starts a simple Python-based HTTP server on port ``8000``. Now you should be able to navigate to `http://localhost:8000 <http://localhost:8000>`_ and view the visualizations of the training runs.
+After copying the UI files we run ``tools/serve.sh`` which periodically builds an index file containing a list of all experiment files such that the web UI can find them. It also starts a simple Python-based HTTP server on port ``8000``. Now you should be able to navigate to `http://localhost:8000 <http://localhost:8000>`_ and view the visualizations of the training runs.
 
 .. _visualize-ubuntu-wsl-macos:
 
@@ -248,13 +240,13 @@ This will be quite slow because no optimizations are applied by default. In the 
 
 .. code-block:: bash
 
-    g++ -I include -std=c++17 -Ofast -march=native src/rl/zoo/l2f/sac.cpp
+    g++ -I include -std=c++17 -O3 -ffast-math -march=native src/rl/zoo/l2f/sac.cpp
     ./a.out
 
 
 With this we observe an ~80x speedup. The added options are:
 
-- ``-Ofast``: Maximally optimize the code and use fast math
+- ``-O3 -ffast-math``: Maximally optimize the code and use fast math
 - ``-march=native``: Take maximal advantage of the available instructions on the host machine
 
 To further speed up the computations we can use a matrix multiplication backend which we find to give another ~7-10x speedup:
@@ -264,7 +256,7 @@ Docker & Ubuntu & WSL
 
 .. code-block:: bash
 
-    g++ -I include -std=c++17 -Ofast -march=native src/rl/zoo/l2f/sac.cpp -lblas -DRL_TOOLS_BACKEND_ENABLE_OPENBLAS
+    g++ -I include -std=c++17 -O3 -ffast-math -march=native src/rl/zoo/l2f/sac.cpp -lblas -DRL_TOOLS_BACKEND_ENABLE_OPENBLAS
     ./a.out
 
 - ``-lblas``: Link against the BLAS library
@@ -276,7 +268,7 @@ macOS
 
 .. code-block:: bash
 
-    g++ -I include -std=c++17 -Ofast -march=native src/rl/zoo/l2f/sac.cpp -framework Accelerate -DRL_TOOLS_BACKEND_ENABLE_ACCELERATE
+    g++ -I include -std=c++17 -O3 -ffast-math -march=native src/rl/zoo/l2f/sac.cpp -framework Accelerate -DRL_TOOLS_BACKEND_ENABLE_ACCELERATE
     ./a.out
 
 - ``-framework Accelerate``: Link against the Accelerate framework
