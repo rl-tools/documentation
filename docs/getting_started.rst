@@ -221,7 +221,7 @@ Native: No CMake
 
 .. epigraph::
 
-   "Never underestimate the power of a man armed with nothing but a C++ compiler."
+   "Never underestimate a man armed with nothing but a C++ compiler."
 
    -- RLtools contributor
 
