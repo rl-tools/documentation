@@ -196,7 +196,10 @@ To expose the experiment data through the forwarded port of the docker container
    cp -r /rl_tools/static /rl_tools/tools /rl_tools/index.html .
    ./tools/serve.sh
 
-After copying the UI files we run ``tools/serve.sh`` which periodically builds an index file containing a list of all experiment files such that the web UI can find them. It also starts a simple Python-based HTTP server on port ``8000``. Now you should be able to navigate to `http://localhost:8000 <http://localhost:8000>`_ and view the visualizations of the training runs (**EX**periment **TRACK**ing UI).
+
+
+
+After copying the UI files we run ``tools/serve.sh`` which periodically builds an index file containing a list of all experiment files such that the web UI can find them. It also starts a simple Python-based HTTP server on port ``8000``. Now you should be able to navigate to `http://localhost:8000 <http://localhost:8000>`_ and view the visualizations of the training runs (EXperiment TRACKing UI).
 
 .. _visualize-ubuntu-wsl-macos:
 
