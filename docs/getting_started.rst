@@ -205,11 +205,11 @@ Ubuntu & WSL & macOS
 
 Make sure that the target is run with the cloned repository `rl-tools` as the working directory. This should create an `experiments` folder inside it.
 
-Now we can run ``serve.sh`` which periodically builds an index file containing a list of all experiment files such that the web UI can find them. It also starts a simple Python-based HTTP server on port ``8000``. Now you should be able to navigate to `http://localhost:8000 <http://localhost:8000>`_ and view the visualizations of the training runs.
+Now we can run ``tools/serve.sh`` which periodically builds an index file containing a list of all experiment files such that the web UI can find them. It also starts a simple Python-based HTTP server on port ``8000``. Now you should be able to navigate to `http://localhost:8000 <http://localhost:8000>`_ and view the visualizations of the training runs.
 
 .. code-block:: bash
 
-   ./serve.sh
+   ./tools/serve.sh
 
 .. _native-no-cmake:
 
