@@ -5,5 +5,6 @@ docker run -it --rm --platform linux/amd64 -p 8888\:8888 \
 $USER_OPTION \
 -v $(pwd)/../rl-tools/include/rl_tools/\:/usr/local/include/rl_tools/\:ro \
 -v $(pwd):/workspace/\:rw -w /workspace \
+-e OPENBLAS_NUM_THREADS=1 \
 $IMAGE \
 "$@"
